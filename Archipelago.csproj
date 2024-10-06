@@ -38,6 +38,9 @@
     <Reference Include="BepInEx">
       <HintPath>..\.references\BepInEx.dll</HintPath>
     </Reference>
+    <Reference Include="DevConsole">
+      <HintPath>..\.references\DevConsole.dll</HintPath>
+    </Reference>
     <Reference Include="HOOKS-Assembly-CSharp">
       <HintPath>..\.references\HOOKS-Assembly-CSharp.dll</HintPath>
     </Reference>
@@ -94,6 +97,7 @@
     <Compile Include="CollectTokens.cs" />
     <Compile Include="Const.cs" />
     <Compile Include="CWTRainWorldGame.cs" />
+    <Compile Include="DevConsoleIntegration.cs" />
     <Compile Include="Echoes.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Collect\Physical.cs" />

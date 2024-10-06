@@ -6,18 +6,32 @@ using System.Text;
 using System.Threading.Tasks;
 using Archipelago;
 using System.Reflection;
+using DevConsole.Commands;
+using DevConsole;
 
 namespace alphappy.Archipelago
 {
     [BepInPlugin(Const.PLUGIN_GUID, Const.PLUGIN_NAME, Const.PLUGIN_VERSION)]
+    [BepInDependency("slime-cubed.devconsole", BepInDependency.DependencyFlags.HardDependency)]
     public class Mod : BaseUnityPlugin
     {
         private static bool startedInitialization = false;
         private static bool initializedWithoutException = false;
         public static BepInEx.Logging.ManualLogSource log;
 
-        public static void Log(object msg) => log.LogDebug(msg);
-        public static void Log(Exception exception) => log.LogError(exception);
+        public static void LogToConsole(string msg) => GameConsole.WriteLine(msg);
+        public static void Log(object msg)
+        {
+            LogToConsole(msg.ToString());
+            log.LogDebug(msg);
+        }
+
+        public static void Log(Exception exception)
+        {
+            LogToConsole(exception.ToString());
+            log.LogError(exception);
+        }
+
         public Mod() => log = Logger;
 
         internal static BindingFlags bfAll = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
@@ -42,6 +56,7 @@ namespace alphappy.Archipelago
                 Pearls.Hooks.Apply();
                 Echoes.Hooks.Apply();
                 FoodQuest.Hooks.Apply();
+                DevConsoleIntegration.RegisterCommands();
             }
             catch (Exception e) { Log(e); }
             initializedWithoutException = true;

@@ -5,8 +5,8 @@
 	"target_game_version": "v1.9.15b",
 	"authors": "alphappy",
 	"description": "Archipelago",
-	"requirements": [],
-	"requirements_names": [],
+	"requirements": ["slime-cubed.devconsole"],
+	"requirements_names": ["Dev Console"],
 	"tags": [],
 	"checksum_override_version": false
 }

@@ -1,5 +1,7 @@
 ﻿using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Enums;
+using DevConsole;
+using IL.Stove.Sample.Session;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -11,6 +13,7 @@ namespace alphappy.Archipelago
         internal static ArchipelagoSession session;
         internal static ClientContainer instance;
         internal static LoginSuccessful successfulLoginInfo;
+        internal static LoginResult lastLoginResult;
 
         public void Update()
         {
@@ -20,43 +23,57 @@ namespace alphappy.Archipelago
             }
         }
 
-        internal void StartClient()
-        {
-            Mod.Log("Session starting...");
-            Connect("localhost:38281", "alphappy");
-            Mod.Log("Session started successfully");
-        }
-
         internal static void Apply(Mod mod)
         {
             instance = new GameObject("Archipelago").AddComponent<ClientContainer>();
-            instance.Initialize();
         }
 
-        internal void Initialize()
+        internal static bool Connected => session is not null && session.Socket.Connected && lastLoginResult is LoginSuccessful;
+        internal static bool EnsureConnected()
         {
-            Mod.Log("Client initializing...");
-            StartClient();
-            Mod.Log("Client initialized successfully");
+            bool c = Connected;
+            if (!c) Mod.LogToConsole("You are not connected to an AP room.");
+            return c;
         }
 
-        internal static void Connect(string server, string user)
+        internal static void Say(string message)
         {
-            LoginResult result;
+            if (!EnsureConnected()) return;
+            if (message.Trim().Length == 0) return;
+            session.Say(message);
+        }
+
+        internal static void Disconnect()
+        {
+            if (!EnsureConnected()) return;
+            Mod.Log("Disconnecting current session");
+            Messenger.GameInbox.connectionState = Messenger.GameInbox.ConnectionState.Disconnected;
+            session.Socket.DisconnectAsync();
+        }
+
+        internal static void Connect(string server, string user, string password = "")
+        {
+            if (Connected)
+            {
+                Mod.LogToConsole("You are already connected to an AP room.");
+                return;
+            }
+
+            Mod.Log($"Attempting to connect to {server} as {user}...");
 
             try
             {
                 session = ArchipelagoSessionFactory.CreateSession(server);
-                result = session.TryConnectAndLogin("Rain World", user, ItemsHandlingFlags.AllItems);
+                lastLoginResult = session.TryConnectAndLogin("Rain World", user, ItemsHandlingFlags.AllItems);
             }
             catch (Exception e)
             {
-                result = new LoginFailure(e.GetBaseException().Message);
+                lastLoginResult = new LoginFailure(e.GetBaseException().Message);
             }
 
-            if (!result.Successful)
+            if (!lastLoginResult.Successful)
             {
-                LoginFailure failure = (LoginFailure)result;
+                LoginFailure failure = (LoginFailure)lastLoginResult;
                 string errorMessage = $"Failed to Connect to {server} as {user}:";
                 foreach (string error in failure.Errors)
                 {
@@ -72,7 +89,7 @@ namespace alphappy.Archipelago
             }
 
             // Successfully connected, `ArchipelagoSession` (assume statically defined as `session` from now on) can now be used to interact with the server and the returned `LoginSuccessful` contains some useful information about the initial connection (e.g. a copy of the slot data as `loginSuccess.SlotData`)
-            successfulLoginInfo = (LoginSuccessful)result;
+            successfulLoginInfo = (LoginSuccessful)lastLoginResult;
             Messenger.GameInbox.connectionState = Messenger.GameInbox.ConnectionState.Connected;
             session.Items.ItemReceived += Items_ItemReceived;
         }
