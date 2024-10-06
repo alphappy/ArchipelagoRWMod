@@ -51,7 +51,7 @@ namespace alphappy.Archipelago
             session.Socket.DisconnectAsync();
         }
 
-        internal static void Connect(string server, string user, string password = "")
+        internal static void Connect(string server, string user, string password = null)
         {
             if (Connected)
             {
@@ -64,7 +64,7 @@ namespace alphappy.Archipelago
             try
             {
                 session = ArchipelagoSessionFactory.CreateSession(server);
-                lastLoginResult = session.TryConnectAndLogin("Rain World", user, ItemsHandlingFlags.AllItems);
+                lastLoginResult = session.TryConnectAndLogin("Rain World", user, ItemsHandlingFlags.AllItems, password: password);
             }
             catch (Exception e)
             {
