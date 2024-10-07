@@ -33,6 +33,13 @@ namespace alphappy.Archipelago.Collect
             { "Grenade", game => game.GetGenericItem(AbstractPhysicalObject.AbstractObjectType.ScavengerBomb) },
             { "Fuit", game => game.GetGenericItem(AbstractPhysicalObject.AbstractObjectType.DangleFruit) },
             { "Spear", game => game.GetSpear() },
+
+            { "Stun Trap", game => game.TrapStun() },
+            { "Timer Trap", game => game.TrapCycleTimer() },
+            { "Zoomies Trap", game => game.TrapZoomiesPlayer() },
+            { "Red Lizard Trap", game => game.TrapSpawnCreatureNearby(CreatureTemplate.Type.RedLizard) },
+            { "Red Centipede Trap", game => game.TrapSpawnCreatureNearby(CreatureTemplate.Type.RedCentipede) },
+            { "Spitter Spider Trap", game => game.TrapSpawnCreatureNearby(CreatureTemplate.Type.SpitterSpider) },
         };
 
         internal static bool GetGenericItem(this RainWorldGame game, AbstractPhysicalObject.AbstractObjectType type)
@@ -57,10 +64,41 @@ namespace alphappy.Archipelago.Collect
 
         internal static bool TrapStun(this RainWorldGame game)
         {
-            Player player = game.FirstAnyPlayer.realizedCreature as Player;
+            Player player = game.FirstAnyPlayer?.realizedCreature as Player;
             if (player.room is null) return false;
-
+            player.Stun(85);
             return true;
+        }
+
+        internal static bool TrapCycleTimer(this RainWorldGame game, int seconds = 120)
+        {
+            game.world.rainCycle.timer += 40 * seconds;
+            return true;
+        }
+
+        internal static bool TrapZoomiesPlayer(this RainWorldGame game)
+        {
+            Player player = game.FirstAnyPlayer?.realizedCreature as Player;
+            if (player.room is null) return false;
+            player.room.updateList.Add(player);
+            return true;
+        }
+
+        internal static bool TrapSpawnCreatureNearby(this RainWorldGame game, CreatureTemplate.Type template)
+        {
+            Player player = game.FirstAnyPlayer?.realizedCreature as Player;
+            if (player.room is Room room && game.world.GetAbstractRoom(room.abstractRoom.connections.Pick()) is AbstractRoom abstractRoom)
+            {
+                AbstractCreature crit = new(game.world, StaticWorld.GetCreatureTemplate(template), null, abstractRoom.RandomNodeInRoom(), game.GetNewID());
+                abstractRoom.AddEntity(crit);
+                if (abstractRoom.realizedRoom is not null)
+                {
+                    crit.RealizeInRoom();
+                    crit.abstractAI.RealAI.tracker.SeeCreature(player.abstractCreature);
+                }
+                return true;
+            }
+            return false;
         }
     }
 }
