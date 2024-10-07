@@ -28,7 +28,16 @@ namespace alphappy.Archipelago
             instance = new GameObject("Archipelago").AddComponent<ClientContainer>();
         }
 
-        internal static bool Connected => session is not null && session.Socket.Connected && lastLoginResult is LoginSuccessful;
+        internal static bool Connected
+        {
+            get
+            {
+                bool connected = session is not null && session.Socket.Connected && lastLoginResult is LoginSuccessful;
+                Messenger.GameInbox.connectionState = connected ? Messenger.GameInbox.ConnectionState.Connected : Messenger.GameInbox.ConnectionState.Disconnected;
+                return connected;
+            }
+        }
+
         internal static bool EnsureConnected()
         {
             bool c = Connected;
