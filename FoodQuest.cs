@@ -49,7 +49,7 @@ namespace alphappy.Archipelago
             internal static bool YesItIsMeGourmand(bool prev) => Messenger.FoodQuest || prev;
             internal static void DetectEatenObject(int index)
             {
-                if (Messenger.FoodQuest) Messenger.JustCollectedThis($"FQ|{index + 1}");
+                if (Messenger.FoodQuest) Messenger.JustCollectedThis($"FQ|{index + 1:D2}");
             }
         }
     }

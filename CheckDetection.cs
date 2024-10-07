@@ -32,7 +32,7 @@ namespace alphappy.Archipelago
                 {
                     if (tracker.ID.value == "Traveller" && tracker is WinState.BoolArrayTracker wanderer)
                     {
-                        Messenger.JustCollectedThis($"Wa|{wanderer.progress.Count(e => e)}");
+                        Messenger.JustCollectedThis($"Wa|{wanderer.progress.Count(e => e):D2}");
                     }
                     if (!tracker.GoalAlreadyFullfilled && tracker.GoalFullfilled)
                     {
