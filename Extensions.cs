@@ -18,5 +18,13 @@ namespace alphappy.Archipelago
             item = self.Dequeue();
             return true;
         }
+
+        public static T Pick<T>(this IEnumerable<T> list)
+        {
+            if (list.Count() == 0)
+                return default;
+
+            return list.ElementAt(UnityEngine.Random.Range(0, list.Count()));
+        }
     }
 }

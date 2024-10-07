@@ -57,6 +57,7 @@ namespace alphappy.Archipelago
                 Echoes.Hooks.Apply();
                 FoodQuest.Hooks.Apply();
                 DevConsoleIntegration.RegisterCommands();
+                Collect.Physical.Hooks.Apply();
             }
             catch (Exception e) { Log(e); }
             initializedWithoutException = true;
