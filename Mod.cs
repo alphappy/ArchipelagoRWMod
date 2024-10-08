@@ -8,6 +8,7 @@ using Archipelago;
 using System.Reflection;
 using DevConsole.Commands;
 using DevConsole;
+using System.IO;
 
 namespace alphappy.Archipelago
 {
@@ -58,6 +59,9 @@ namespace alphappy.Archipelago
                 FoodQuest.Hooks.Apply();
                 DevConsoleIntegration.RegisterCommands();
                 Collect.Physical.Hooks.Apply();
+
+                if (!Directory.Exists(Const.SAVE_DATA_PATH)) Directory.CreateDirectory(Const.SAVE_DATA_PATH);
+
                 Log("Initialization completed without exception");
                 initializedWithoutException = true;
             }

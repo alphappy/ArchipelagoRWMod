@@ -3,6 +3,7 @@ using Archipelago.MultiClient.Net.Enums;
 using DevConsole;
 using IL.Stove.Sample.Session;
 using System;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -99,8 +100,39 @@ namespace alphappy.Archipelago
 
             // Successfully connected, `ArchipelagoSession` (assume statically defined as `session` from now on) can now be used to interact with the server and the returned `LoginSuccessful` contains some useful information about the initial connection (e.g. a copy of the slot data as `loginSuccess.SlotData`)
             successfulLoginInfo = (LoginSuccessful)lastLoginResult;
+            PrepareSaveData(session.RoomState.Seed);
             Messenger.GameInbox.connectionState = Messenger.GameInbox.ConnectionState.Connected;
             session.Items.ItemReceived += Items_ItemReceived;
+        }
+
+        internal static string saveFilepath = "";
+
+        internal static void PrepareSaveData(string seed)
+        {
+            Messenger.GameInbox.alreadyAwarded.Clear();
+            saveFilepath = $"{Const.SAVE_DATA_PATH}\\{seed}";
+            if (File.Exists(saveFilepath))
+            {
+                Mod.Log($"Loading save data for room '{seed}'...");
+                string[] lines = File.ReadAllLines(saveFilepath);
+                foreach (string line in lines)
+                {
+                    if (line == "Karma cap increase") continue;
+                    if (Messenger.GameInbox.alreadyAwarded.TryGetValue(line, out _))
+                    {
+                        Messenger.GameInbox.alreadyAwarded[line] += 1;
+                    }
+                    else
+                    {
+                        Messenger.GameInbox.alreadyAwarded[line] = 1;
+                    }
+                }
+            }
+            else
+            {
+                Mod.Log($"No save data!  Creating save data for '{seed}'...");
+                File.WriteAllText(saveFilepath, "");
+            }
         }
 
         internal static void Items_ItemReceived(global::Archipelago.MultiClient.Net.Helpers.ReceivedItemsHelper helper)
