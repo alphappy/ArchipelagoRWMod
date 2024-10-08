@@ -58,10 +58,10 @@ namespace alphappy.Archipelago
                 FoodQuest.Hooks.Apply();
                 DevConsoleIntegration.RegisterCommands();
                 Collect.Physical.Hooks.Apply();
+                Log("Initialization completed without exception");
+                initializedWithoutException = true;
             }
             catch (Exception e) { Log(e); }
-            initializedWithoutException = true;
-            Log("Initialization completed without exception");
         }
     }
 }

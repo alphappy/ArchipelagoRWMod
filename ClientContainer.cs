@@ -109,7 +109,7 @@ namespace alphappy.Archipelago
             Mod.Log($"Received item #{item.ItemId}: '{item.ItemName}'");
             Messenger.JustReceivedThis(item);
             if (item.ItemName == "Karma cap increase") CountKarma();
-            else if (item.ItemName.StartsWith("Key to")) Messenger.GameInbox.receivedRegionKeys.Add(item.ItemName.Substring(7));
+            //else if (item.ItemName.StartsWith("Key to")) Messenger.GameInbox.receivedRegionKeys.Add(item.ItemName.Substring(7));
         }
 
         internal static void CheckCollected(string name)

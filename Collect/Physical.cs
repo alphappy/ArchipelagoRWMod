@@ -19,9 +19,19 @@ namespace alphappy.Archipelago.Collect
             private static void RainWorldGame_Update(On.RainWorldGame.orig_Update orig, RainWorldGame self)
             {
                 orig(self);
-                if (Messenger.ArchiMode && Messenger.GameInbox.receivedItems.Peek() is ItemInfo item && receivers.TryGetValue(item.ItemName, out var action))
+                if (!Messenger.ArchiMode) return;
+                if (Messenger.GameInbox.receivedItems.Count == 0) return;
+                ItemInfo item = Messenger.GameInbox.receivedItems.Dequeue();
+                Mod.Log($"Seeing {item.ItemName}");
+                if (item.ItemName.StartsWith("Key to")) Messenger.GameInbox.receivedRegionKeys.Add(item.ItemName.Substring(7));
+                else if (receivers.TryGetValue(item.ItemName, out var action))
                 {
-                    if (action?.Invoke(self) == true) Messenger.GameInbox.receivedItems.Pop(out _);
+                    Mod.Log($"Attempting to award item {item.ItemName}");
+                    if (action?.Invoke(self) == false)
+                    {
+                        Mod.Log($"Item was not awarded; going back to queue");
+                        Messenger.GameInbox.receivedItems.Enqueue(item);
+                    }
                 }
             }
         }
