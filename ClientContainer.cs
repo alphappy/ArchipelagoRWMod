@@ -22,6 +22,10 @@ namespace alphappy.Archipelago
             {
                 CheckCollected(Messenger.ClientInbox.collectedChecks.Dequeue());
             }
+            if (Messenger.ClientInbox.toBeSaved.Count > 0)
+            {
+                File.AppendAllText(saveFilepath, $"{Messenger.ClientInbox.toBeSaved.Dequeue()}\n");
+            }
         }
 
         internal static void Apply(Mod mod)
