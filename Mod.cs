@@ -20,7 +20,7 @@ namespace alphappy.Archipelago
         private static bool initializedWithoutException = false;
         public static BepInEx.Logging.ManualLogSource log;
 
-        public static void LogToConsole(string msg) => GameConsole.WriteLine(msg);
+        public static void LogToConsole(string msg) => GameConsole.WriteLine($"[Archipelago] {msg}");
         public static void Log(object msg)
         {
             LogToConsole(msg.ToString());
