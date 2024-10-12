@@ -111,7 +111,7 @@ namespace alphappy.Archipelago
 
             // Successfully connected, `ArchipelagoSession` (assume statically defined as `session` from now on) can now be used to interact with the server and the returned `LoginSuccessful` contains some useful information about the initial connection (e.g. a copy of the slot data as `loginSuccess.SlotData`)
             successfulLoginInfo = (LoginSuccessful)lastLoginResult;
-            PrepareSaveData(session.RoomState.Seed);
+            PrepareSaveData(session.RoomState.Seed, successfulLoginInfo.Slot);
             Messenger.GameInbox.connectionState = Messenger.GameInbox.ConnectionState.Connected;
             session.Items.ItemReceived += Items_ItemReceived;
         }
@@ -122,13 +122,13 @@ namespace alphappy.Archipelago
         /// Prepare a save data file for a given AP seed.  This file will appear in ModConfigs.
         /// </summary>
         /// <param name="seed"></param>
-        internal static void PrepareSaveData(string seed)
+        internal static void PrepareSaveData(string seed, int slotNumber)
         {
             Messenger.GameInbox.alreadyAwarded.Clear();
-            saveFilepath = $"{Const.SAVE_DATA_PATH}\\{seed}";
+            saveFilepath = $"{Const.SAVE_DATA_PATH}\\{seed}_{slotNumber}";
             if (File.Exists(saveFilepath))
             {
-                Mod.Log($"Loading save data for room '{seed}'...");
+                Mod.Log($"Loading save data for room '{seed}', slot {slotNumber}...");
                 string[] lines = File.ReadAllLines(saveFilepath);
                 foreach (string line in lines)
                 {
@@ -145,7 +145,7 @@ namespace alphappy.Archipelago
             }
             else
             {
-                Mod.Log($"No save data!  Creating save data for '{seed}'...");
+                Mod.Log($"No save data!  Creating save data for room '{seed}', slot {slotNumber}...");
                 File.WriteAllText(saveFilepath, "");
             }
         }
