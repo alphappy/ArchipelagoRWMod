@@ -18,13 +18,13 @@ namespace alphappy.Archipelago
 
         public void Update()
         {
-            if (Messenger.ClientInbox.collectedChecks.Count > 0)
+            if (Messenger.ClientInbox.collectedChecks.TryPop(out string item))
             {
-                CheckCollected(Messenger.ClientInbox.collectedChecks.Dequeue());
+                CheckCollected(item);
             }
-            if (Messenger.ClientInbox.toBeSaved.Count > 0)
+            if (Messenger.ClientInbox.toBeSaved.TryPop(out string save))
             {
-                File.AppendAllText(saveFilepath, $"{Messenger.ClientInbox.toBeSaved.Dequeue()}\n");
+                File.AppendAllText(saveFilepath, $"{save}\n");
             }
         }
 

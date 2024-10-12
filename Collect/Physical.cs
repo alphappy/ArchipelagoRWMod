@@ -20,17 +20,17 @@ namespace alphappy.Archipelago.Collect
             {
                 orig(self);
                 if (!Messenger.ArchiMode) return;
-                if (Messenger.GameInbox.receivedItems.Count == 0) return;
-                ItemInfo item = Messenger.GameInbox.receivedItems.Dequeue();
-                Mod.Log($"Seeing {item.ItemName}");
-                if (item.ItemName.StartsWith("Key to")) Messenger.GameInbox.receivedRegionKeys.Add(item.ItemName.Substring(7));
-                else if (receivers.TryGetValue(item.ItemName, out var action))
+                if (Messenger.GameInbox.receivedItems.TryPop(out ItemInfo item))
                 {
-                    Mod.Log($"Attempting to award item {item.ItemName}");
-                    if (action?.Invoke(self) == false)
+                    if (item.ItemName.StartsWith("Key to")) Messenger.GameInbox.receivedRegionKeys.Add(item.ItemName.Substring(7));
+                    else if (receivers.TryGetValue(item.ItemName, out var action))
                     {
-                        Mod.Log($"Item was not awarded; going back to queue");
-                        Messenger.GameInbox.receivedItems.Enqueue(item);
+                        Mod.Log($"Attempting to award item {item.ItemName}");
+                        if (action?.Invoke(self) == false)
+                        {
+                            Mod.Log($"Item was not awarded; going back to queue");
+                            Messenger.GameInbox.receivedItems.Enqueue(item);
+                        }
                     }
                 }
             }

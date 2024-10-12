@@ -9,7 +9,10 @@ namespace alphappy.Archipelago
 {
     internal static class Extensions
     {
-        internal static bool Pop<T>(this Queue<T> self, out T item)
+        /// <summary>
+        /// If this Queue is not empty, dequeue and supply that; otherwise, supply default and return false.
+        /// </summary>
+        internal static bool TryPop<T>(this Queue<T> self, out T item)
         {
             if (self.Count == 0)
             {
