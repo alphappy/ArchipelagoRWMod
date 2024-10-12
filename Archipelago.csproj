@@ -96,7 +96,6 @@
     <Compile Include="ClientContainer.cs" />
     <Compile Include="CollectTokens.cs" />
     <Compile Include="Const.cs" />
-    <Compile Include="CWTRainWorldGame.cs" />
     <Compile Include="DevConsoleIntegration.cs" />
     <Compile Include="Echoes.cs" />
     <Compile Include="Extensions.cs" />

@@ -1,11 +1,6 @@
 ﻿using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Enums;
-using DevConsole;
-using IL.Stove.Sample.Session;
-using System;
 using System.IO;
-using System.Linq;
-using UnityEngine;
 
 namespace alphappy.Archipelago
 {
