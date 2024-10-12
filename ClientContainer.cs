@@ -27,12 +27,17 @@ namespace alphappy.Archipelago
                 File.AppendAllText(saveFilepath, $"{save}\n");
             }
         }
-
-        internal static void Apply(Mod mod)
+        /// <summary>
+        /// Add a component to a <see cref="GameObject"/> to put the client on an update loop separate from the <see cref="RainWorld"/>.
+        /// </summary>
+        internal static void Apply()
         {
             instance = new GameObject("Archipelago").AddComponent<ClientContainer>();
         }
 
+        /// <summary>
+        /// Check whether the session is <em>currently</em> connected, regardless of whether the game is currently in ArchiMode.
+        /// </summary>
         internal static bool Connected
         {
             get
@@ -65,6 +70,13 @@ namespace alphappy.Archipelago
             session.Socket.DisconnectAsync();
         }
 
+        /// <summary>
+        /// Connect to an AP room.
+        /// If successful, <see cref="session"/> will contain an <see cref="ArchipelagoSession"/> from which all AP operations will be conducted.
+        /// </summary>
+        /// <param name="server"></param>
+        /// <param name="user"></param>
+        /// <param name="password"></param>
         internal static void Connect(string server, string user, string password = null)
         {
             if (Connected)
@@ -111,6 +123,10 @@ namespace alphappy.Archipelago
 
         internal static string saveFilepath = "";
 
+        /// <summary>
+        /// Prepare a save data file for a given AP seed.  This file will appear in ModConfigs.
+        /// </summary>
+        /// <param name="seed"></param>
         internal static void PrepareSaveData(string seed)
         {
             Messenger.GameInbox.alreadyAwarded.Clear();
@@ -154,6 +170,9 @@ namespace alphappy.Archipelago
             session.Locations.CompleteLocationChecks(session.Locations.GetLocationIdFromName("Rain World", name));
         }
 
+        /// <summary>
+        /// Counts up current Karma cap increases to compute what should be current max Karma.
+        /// </summary>
         internal static void CountKarma()
         {
             Messenger.GameInbox.karmaCap = session.Items.AllItemsReceived.Count(x => x.ItemName == "Karma cap increase");

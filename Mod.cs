@@ -35,6 +35,9 @@ namespace alphappy.Archipelago
 
         public Mod() => log = Logger;
 
+        /// <summary>
+        /// To be used with reflection methods such as <see cref="Type.GetMethod(string, BindingFlags)"/> to match everything.
+        /// </summary>
         internal static BindingFlags bfAll = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
         public void OnEnable()
@@ -49,7 +52,7 @@ namespace alphappy.Archipelago
             startedInitialization = true;
             try
             {
-                ClientContainer.Apply(this);
+                ClientContainer.Apply();
                 CheckDetection.Hooks.Apply();
                 CollectTokens.Hooks.Apply();
                 Karma.Hooks.Apply();

@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace alphappy.Archipelago
 {
+    /// <summary>
+    /// Class containing all interaction with Dev Console.
+    /// </summary>
     internal static class DevConsoleIntegration
     {
         internal static void RegisterCommands()

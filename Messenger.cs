@@ -25,7 +25,16 @@ namespace alphappy.Archipelago
             internal static Dictionary<string, int> alreadyAwarded = new();
         }
 
+        /// <summary>
+        /// Tell the client that a check was just collected.
+        /// </summary>
+        /// <param name="item"></param>
         internal static void JustCollectedThis(string item) => ClientInbox.collectedChecks.Enqueue(item);
+        /// <summary>
+        /// Tell the game that an item was just received from the server.
+        /// If the item is previously awarded filler, it is not awarded again.
+        /// </summary>
+        /// <param name="item"></param>
         internal static void JustReceivedThis(ItemInfo item)
         {
             if (IsFiller(item.ItemName) && GameInbox.alreadyAwarded.GetOrDefault(item.ItemName, 0) > 0)
@@ -38,6 +47,11 @@ namespace alphappy.Archipelago
             ClientInbox.toBeSaved.Enqueue(item.ItemName);
         }
 
+        /// <summary>
+        /// Determines whether an item is a filler item that should not be awarded a second time.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
         internal static bool IsFiller(string item)
         {
             if (item.StartsWith("Key to")) return false;
