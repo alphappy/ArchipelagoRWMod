@@ -1,5 +1,6 @@
 ﻿using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Enums;
+using Archipelago.MultiClient.Net.Packets;
 using System.IO;
 
 namespace alphappy.Archipelago
@@ -20,6 +21,11 @@ namespace alphappy.Archipelago
             if (Messenger.ClientInbox.toBeSaved.TryPop(out string save))
             {
                 File.AppendAllText(saveFilepath, $"{save}\n");
+            }
+            if (Messenger.ClientInbox.beatTheGame)
+            {
+                Complete();
+                Messenger.ClientInbox.beatTheGame = false;
             }
         }
         /// <summary>
@@ -111,6 +117,7 @@ namespace alphappy.Archipelago
 
             // Successfully connected, `ArchipelagoSession` (assume statically defined as `session` from now on) can now be used to interact with the server and the returned `LoginSuccessful` contains some useful information about the initial connection (e.g. a copy of the slot data as `loginSuccess.SlotData`)
             successfulLoginInfo = (LoginSuccessful)lastLoginResult;
+            Messenger.Reset();
             PrepareSaveData(session.RoomState.Seed, successfulLoginInfo.Slot);
             Messenger.GameInbox.connectionState = Messenger.GameInbox.ConnectionState.Connected;
             session.Items.ItemReceived += Items_ItemReceived;
@@ -173,6 +180,15 @@ namespace alphappy.Archipelago
             Messenger.GameInbox.karmaCap = session.Items.AllItemsReceived.Count(x => x.ItemName == "Karma cap increase");
             if (Messenger.GameInbox.karmaCap >= 5) Messenger.GameInbox.karmaCap++;
             if (Messenger.GameInbox.karmaCap > 9) Messenger.GameInbox.karmaCap = 9;
+        }
+
+        internal static void Complete()
+        {
+            StatusUpdatePacket statusUpdatePacket = new()
+            {
+                Status = ArchipelagoClientState.ClientGoal
+            };
+            session.Socket.SendPacket(statusUpdatePacket);
         }
     }
 }

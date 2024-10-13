@@ -55,6 +55,7 @@ namespace alphappy.Archipelago
                 FoodQuest.Hooks.Apply();
                 DevConsoleIntegration.RegisterCommands();
                 Collect.Physical.Hooks.Apply();
+                Victory.Hooks.Apply();
                 MachineConnector.SetRegisteredOI(Const.PLUGIN_GUID, Settings.instance);
 
                 if (!Directory.Exists(Const.SAVE_DATA_PATH)) Directory.CreateDirectory(Const.SAVE_DATA_PATH);

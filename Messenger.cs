@@ -8,6 +8,7 @@ namespace alphappy.Archipelago
         {
             internal static Queue<string> collectedChecks = new();
             internal static Queue<string> toBeSaved = new();
+            internal static bool beatTheGame = false;
         }
 
         internal static class GameInbox
@@ -18,6 +19,19 @@ namespace alphappy.Archipelago
             internal enum ConnectionState { Unconnected, Connected, Disconnected }
             internal static ConnectionState connectionState = ConnectionState.Unconnected;
             internal static Dictionary<string, int> alreadyAwarded = new();
+        }
+
+        /// <summary>
+        /// Reset the current state of the inboxes.
+        /// </summary>
+        internal static void Reset()
+        {
+            ClientInbox.collectedChecks.Clear();
+            ClientInbox.toBeSaved.Clear();
+            GameInbox.receivedItems.Clear();
+            GameInbox.receivedRegionKeys.Clear();
+            GameInbox.connectionState = GameInbox.ConnectionState.Unconnected;
+            GameInbox.alreadyAwarded.Clear();
         }
 
         /// <summary>
