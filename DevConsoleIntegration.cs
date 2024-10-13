@@ -4,6 +4,7 @@ namespace alphappy.Archipelago
 {
     /// <summary>
     /// Class containing all interaction with Dev Console.
+    /// Methods which cannot run without Dev Console being enabled should be here.
     /// </summary>
     internal static class DevConsoleIntegration
     {
@@ -12,6 +13,7 @@ namespace alphappy.Archipelago
             new CommandBuilder("apconnect").Run(Connect).AutoComplete(AutoComplete.Connect).Register();
             new CommandBuilder("apdisconnect").Run(Disconnect).Register();
             new CommandBuilder("apsay").Run(Say).Register();
+            new CommandBuilder("apcollect").Run(Collect).Register();
         }
 
         internal static void Connect(string[] args)
@@ -31,6 +33,8 @@ namespace alphappy.Archipelago
             if (args.Length == 0) return;
             ClientContainer.Say(string.Join(" ", args));
         }
+
+        internal static void Collect(string[] args) => Messenger.JustCollectedThis(string.Join(" ", args));
 
         internal static class AutoComplete
         {

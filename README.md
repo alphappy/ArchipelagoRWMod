@@ -17,6 +17,8 @@ It adds three commands:
 - `apdisconnect`: disconnect from current AP room.
 - `apsay <MESSAGE>`: send `<MESSAGE>` to the room as a text message.
 Because this is just a normal text message, server commands like `!hint` work here.
+- `apcollect <LOCATION>`: tell the AP server that `<LOCATION>` has been checked.
+This is a debug tool.
 
 ## Building
 The repo is a Visual Studio project (specifically made with VS Community 2022).
