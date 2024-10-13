@@ -1,23 +1,17 @@
 ﻿namespace alphappy.Archipelago
 {
-    internal static class CheckDetection
+    internal static class Passages
     {
         internal static class Hooks
         {
             internal static void Apply()
             {
-                // Detect when passages are completed, or when Wanderer pips are earned.
                 On.WinState.CycleCompleted += WinState_CycleCompleted;
-                // Detect when an Echo is encountered.
-                On.SaveState.GhostEncounter += SaveState_GhostEncounter;
             }
 
-            private static void SaveState_GhostEncounter(On.SaveState.orig_GhostEncounter orig, SaveState self, GhostWorldPresence.GhostID ghost, RainWorld rainWorld)
-            {
-                orig(self, ghost, rainWorld);
-                if (Messenger.ArchiMode) Messenger.JustCollectedThis($"Ec|{ghost}");
-            }
-
+            /// <summary>
+            /// Report any Passage progress to the client.
+            /// </summary>
             private static void WinState_CycleCompleted(On.WinState.orig_CycleCompleted orig, WinState self, RainWorldGame game)
             {
                 orig(self, game);

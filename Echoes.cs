@@ -10,6 +10,14 @@
                 IL.SaveState.GhostEncounter += SaveState_GhostEncounter;
                 // Make echoes spawn without needing to be primed first (Remix setting).
                 IL.World.SpawnGhost += World_SpawnGhost;
+                // Detect when an Echo is encountered.
+                On.SaveState.GhostEncounter += SaveState_GhostEncounter;
+            }
+
+            private static void SaveState_GhostEncounter(On.SaveState.orig_GhostEncounter orig, SaveState self, GhostWorldPresence.GhostID ghost, RainWorld rainWorld)
+            {
+                orig(self, ghost, rainWorld);
+                if (Messenger.ArchiMode) Messenger.JustCollectedThis($"Ec|{ghost}");
             }
 
             private static void World_SpawnGhost(ILContext il)

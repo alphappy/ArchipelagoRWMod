@@ -46,7 +46,7 @@ namespace alphappy.Archipelago
             try
             {
                 ClientContainer.Apply();
-                CheckDetection.Hooks.Apply();
+                Passages.Hooks.Apply();
                 CollectTokens.Hooks.Apply();
                 Karma.Hooks.Apply();
                 Gates.Hooks.Apply();
