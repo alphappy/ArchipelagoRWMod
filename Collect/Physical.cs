@@ -1,4 +1,5 @@
 ﻿using Archipelago.MultiClient.Net.Models;
+using JetBrains.Annotations;
 
 namespace alphappy.Archipelago.Collect
 {
@@ -56,44 +57,52 @@ namespace alphappy.Archipelago.Collect
 
         internal static bool GetGenericItem(this RainWorldGame game, AbstractPhysicalObject.AbstractObjectType type)
         {
-            Player player = game.FirstAnyPlayer.realizedCreature as Player;
-            if (player.room is null) return false;
-            var obj = new AbstractPhysicalObject(player.room.world, type, null, player.abstractCreature.pos, player.room.game.GetNewID());
-            player.room.abstractRoom.AddEntity(obj);
-            obj.RealizeInRoom();
-            return true;
+            if (game.GetPlayer(out Player player))
+            {
+                var obj = new AbstractPhysicalObject(player.room.world, type, null, player.abstractCreature.pos, player.room.game.GetNewID());
+                player.room.abstractRoom.AddEntity(obj);
+                obj.RealizeInRoom();
+                return true;
+            }
+            return false;
         }
 
         internal static bool GetSpear(this RainWorldGame game, bool explosive = false, bool electric = false)
         {
-            Player player = game.FirstAnyPlayer.realizedCreature as Player;
-            if (player.room is null) return false;
-            var obj = new AbstractSpear(player.room.world, null, player.abstractCreature.pos, player.room.game.GetNewID(), explosive, electric);
-            player.room.abstractRoom.AddEntity(obj);
-            obj.RealizeInRoom();
-            return true;
+            if (game.GetPlayer(out Player player))
+            {
+                var obj = new AbstractSpear(player.room.world, null, player.abstractCreature.pos, player.room.game.GetNewID(), explosive, electric);
+                player.room.abstractRoom.AddEntity(obj);
+                obj.RealizeInRoom();
+                return true;
+            }
+            return false;
         }
 
         internal static bool GetFood(this RainWorldGame game, int amount)
         {
-            Player player = game.FirstAnyPlayer.realizedCreature as Player;
-            player.AddFood(amount);
-            return true;
+            if (game.GetPlayer(out Player player))
+            {
+                player.AddFood(amount);
+                return true;
+            }
+            return false;
         }
 
         internal static bool GetDrugs(this RainWorldGame game, int duration)
         {
-            Player player = game.FirstAnyPlayer.realizedCreature as Player;
-            if (player.room is null) return false;
-            player.mushroomEffect = 1f;
-            player.mushroomCounter = duration;
-            return true;
+            if (game.GetPlayer(out Player player))
+            {
+                player.mushroomEffect = 1f;
+                player.mushroomCounter = duration;
+                return true;
+            }
+            return false;
         }
 
         internal static bool GetKarmaReinforcement(this RainWorldGame game)
         {
-            Player player = game.FirstAnyPlayer.realizedCreature as Player;
-            if (player.room is not null)
+            if (game.GetPlayer(out _))
             {
                 if (game.session is StoryGameSession session && !session.saveState.deathPersistentSaveData.reinforcedKarma)
                 {
@@ -105,57 +114,89 @@ namespace alphappy.Archipelago.Collect
             return false;
         }
 
+        /// <summary>
+        /// Gets player 1.
+        /// </summary>
+        /// <param name="game"></param>
+        /// <param name="player"></param>
+        /// <param name="trap">Whether the shelter safety setting should be checked.</param>
+        /// <returns>
+        /// Returns <see langword="true"/> if the <see cref="Player"/> is not <see langword="null"/>, is in a <see cref="Room"/>, 
+        /// and, if the <see cref="Settings.boolShelterSafety"/> option is enabled and the query is for a trap,
+        /// that room is not a shelter.
+        /// </returns>
+        internal static bool GetPlayer(this RainWorldGame game, out Player player, bool trap = false)
+        {
+            player = game.FirstAnyPlayer?.realizedCreature as Player;
+            if (player?.room is null) return false;
+            if (trap && Settings.boolShelterSafety.Value && player.room.abstractRoom.shelter == true) return false;
+            return true;
+        }
+
         internal static bool TrapStun(this RainWorldGame game)
         {
-            Player player = game.FirstAnyPlayer?.realizedCreature as Player;
-            if (player.room is null) return false;
-            player.Stun(85);
-            return true;
+            if (game.GetPlayer(out Player player, true))
+            {
+                player.Stun(85);
+                return true;
+            }
+            return false;
         }
 
         internal static bool TrapCycleTimer(this RainWorldGame game, int seconds = 120)
         {
-            game.world.rainCycle.timer += 40 * seconds;
-            return true;
+            if (game.GetPlayer(out _, true))
+            {
+                game.world.rainCycle.timer += 40 * seconds;
+                return true;
+            }
+            return false;
         }
 
         internal static bool TrapZoomiesPlayer(this RainWorldGame game)
         {
-            Player player = game.FirstAnyPlayer?.realizedCreature as Player;
-            if (player.room is null) return false;
-            player.room.updateList.Add(player);
-            return true;
+            if (game.GetPlayer(out Player player, true))
+            {
+                player.room.updateList.Add(player);
+                return true;
+            }
+            return false;
         }
 
         internal static bool TrapSpawnCreatureNearby(this RainWorldGame game, CreatureTemplate.Type template)
         {
-            Player player = game.FirstAnyPlayer?.realizedCreature as Player;
-            if (player.room is Room room && game.world.GetAbstractRoom(room.abstractRoom.connections.Pick()) is AbstractRoom abstractRoom)
+            if (game.GetPlayer(out Player player, true))
             {
-                AbstractCreature crit = new(game.world, StaticWorld.GetCreatureTemplate(template), null, abstractRoom.RandomNodeInRoom(), game.GetNewID());
-                abstractRoom.AddEntity(crit);
-                if (abstractRoom.realizedRoom is not null)
+                if (game.world.GetAbstractRoom(player.room.abstractRoom.connections.Pick()) is AbstractRoom abstractRoom
+                    && (!abstractRoom.shelter || !Settings.boolShelterSafety.Value))
                 {
-                    crit.RealizeInRoom();
-                    crit.abstractAI.RealAI.tracker.SeeCreature(player.abstractCreature);
+                    AbstractCreature crit = new(game.world, StaticWorld.GetCreatureTemplate(template), null, abstractRoom.RandomNodeInRoom(), game.GetNewID());
+                    abstractRoom.AddEntity(crit);
+                    if (abstractRoom.realizedRoom is not null)
+                    {
+                        crit.RealizeInRoom();
+                        crit.abstractAI.RealAI.tracker.SeeCreature(player.abstractCreature);
+                    }
+                    return true;
                 }
-                return true;
             }
             return false;
         }
 
         internal static bool TrapAlarm(this RainWorldGame game)
         {
-            Player player = game.FirstAnyPlayer?.realizedCreature as Player;
-            if (player.room is null) return false;
-            foreach (AbstractRoom room in game.world.abstractRooms.Where(e => e.realizedRoom is not null))
+            if (game.GetPlayer(out Player player, true))
             {
-                foreach (AbstractCreature creature in room.creatures.Where(e => e.realizedCreature is not null))
+                foreach (AbstractRoom room in game.world.abstractRooms.Where(e => e.realizedRoom is not null))
                 {
-                    creature.abstractAI.RealAI.tracker.SeeCreature(player.abstractCreature);
+                    foreach (AbstractCreature creature in room.creatures.Where(e => e.realizedCreature is not null))
+                    {
+                        creature.abstractAI.RealAI.tracker.SeeCreature(player.abstractCreature);
+                    }
                 }
+                return true;
             }
-            return true;
+            return false;
         }
     }
 }
