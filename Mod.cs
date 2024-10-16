@@ -10,7 +10,6 @@ namespace alphappy.Archipelago
     public class Mod : BaseUnityPlugin
     {
         private static bool startedInitialization = false;
-        private static bool initializedWithoutException = false;
         public static BepInEx.Logging.ManualLogSource log;
 
         public static void LogToConsole(string msg) => GameConsole.WriteLine($"[Archipelago] {msg}");
@@ -61,7 +60,6 @@ namespace alphappy.Archipelago
                 if (!Directory.Exists(Const.SAVE_DATA_PATH)) Directory.CreateDirectory(Const.SAVE_DATA_PATH);
 
                 Log("Initialization completed without exception");
-                initializedWithoutException = true;
             }
             catch (Exception e) { Log(e); }
         }

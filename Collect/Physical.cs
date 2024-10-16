@@ -39,9 +39,16 @@ namespace alphappy.Archipelago.Collect
             { "Fuit", game => game.GetGenericItem(AbstractPhysicalObject.AbstractObjectType.DangleFruit) },
             { "Spear", game => game.GetSpear() },
 
+            { "Food 1", game => game.GetFood(1) },
+            { "Food 2", game => game.GetFood(2) },
+            { "Food 3", game => game.GetFood(3) },
+            { "Drugs", game => game.GetDrugs(280) },
+            { "Reinforcement", game => game.GetKarmaReinforcement() },
+
             { "Stun Trap", game => game.TrapStun() },
             { "Timer Trap", game => game.TrapCycleTimer() },
             { "Zoomies Trap", game => game.TrapZoomiesPlayer() },
+            { "Alarm Trap", game => game.TrapAlarm() },
             { "Red Lizard Trap", game => game.TrapSpawnCreatureNearby(CreatureTemplate.Type.RedLizard) },
             { "Red Centipede Trap", game => game.TrapSpawnCreatureNearby(CreatureTemplate.Type.RedCentipede) },
             { "Spitter Spider Trap", game => game.TrapSpawnCreatureNearby(CreatureTemplate.Type.SpitterSpider) },
@@ -65,6 +72,37 @@ namespace alphappy.Archipelago.Collect
             player.room.abstractRoom.AddEntity(obj);
             obj.RealizeInRoom();
             return true;
+        }
+
+        internal static bool GetFood(this RainWorldGame game, int amount)
+        {
+            Player player = game.FirstAnyPlayer.realizedCreature as Player;
+            player.AddFood(amount);
+            return true;
+        }
+
+        internal static bool GetDrugs(this RainWorldGame game, int duration)
+        {
+            Player player = game.FirstAnyPlayer.realizedCreature as Player;
+            if (player.room is null) return false;
+            player.mushroomEffect = 1f;
+            player.mushroomCounter = duration;
+            return true;
+        }
+
+        internal static bool GetKarmaReinforcement(this RainWorldGame game)
+        {
+            Player player = game.FirstAnyPlayer.realizedCreature as Player;
+            if (player.room is not null)
+            {
+                if (game.session is StoryGameSession session && !session.saveState.deathPersistentSaveData.reinforcedKarma)
+                {
+                    session.saveState.deathPersistentSaveData.reinforcedKarma = true;
+                    game.cameras[0].hud.karmaMeter.reinforceAnimation = 0;
+                }
+                return true;
+            }
+            return false;
         }
 
         internal static bool TrapStun(this RainWorldGame game)
@@ -104,6 +142,20 @@ namespace alphappy.Archipelago.Collect
                 return true;
             }
             return false;
+        }
+
+        internal static bool TrapAlarm(this RainWorldGame game)
+        {
+            Player player = game.FirstAnyPlayer?.realizedCreature as Player;
+            if (player.room is null) return false;
+            foreach (AbstractRoom room in game.world.abstractRooms.Where(e => e.realizedRoom is not null))
+            {
+                foreach (AbstractCreature creature in room.creatures.Where(e => e.realizedCreature is not null))
+                {
+                    creature.abstractAI.RealAI.tracker.SeeCreature(player.abstractCreature);
+                }
+            }
+            return true;
         }
     }
 }
